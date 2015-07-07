@@ -25,29 +25,38 @@
     Datepicker.VERSION = '1.0.0';
 
     Datepicker.DEFAULT = {
-        container     : '',
-        startDate     : '',
-        endDate       : '',
-        singleFrame   : false,
-        initFrames    : 3,
-        loadOffset    : 100,
-        i18n          : false
+        container      : '',
+        startDate      : '',
+        endDate        : '',
+        singleFrame    : false,
+        initFrames     : 3,
+        loadFrames     : 3,
+        loadOffset     : 100,
+        i18n           : false,
+        selectCallback : $.noop
     };
 
     function Datepicker(options) {
         var options = $.extend(Datepicker.DEFAULT, options);
 
-        this.$container   = $(options.container);
-        this.startDate    = new Date(options.startDate);
-        this.endDate      = new Date(options.endDate);
-        this.initFrames   = options.initFrame;
-        this.restFrames   = 0;
-        this.tmpYear      = 0;
-        this.tmpMonth     = 0;
-        this.loadOffset   = options.loadOffset;
-        this.singleFrame  = options.singleFrame;
+        this.$container     = $(options.container);
+        this.startDate      = new Date(options.startDate);
+        this.endDate        = new Date(options.endDate);
+        this.initFrames     = options.initFrame;
+        this.restFrames     = 0;
+        this.loadFrames     = options.loadFrames;
+        this.tmpYear        = 0;
+        this.tmpMonth       = 0;
+        this.loadOffset     = options.loadOffset;
+        this.singleFrame    = options.singleFrame;
+        this.i18n           = options.i18n;
+        this.selectCallback = options.selectCallback;
 
+        // init scroll event
         $(window).on('scroll', $.proxy(this.scrollLoad, this));
+
+        // init select event
+        $(document.body).on('click', 'span[data-date]', $.proxy(this.initEvents, this));
 
         // init datepicker
         this.init();
@@ -88,6 +97,20 @@
             }
         },
 
+        initEvents: function(event) {
+            var $this = event.target.tagName.toLowerCase() == 'span' ? $(event.target) : $(event.target).parents('span');
+
+            // if the item is outdate or today,
+            // do nothing but just return
+            if ($this.is('.is-outdate') || $this.is('.is-today')) return;
+
+            this.$container.find('.selected').removeClass('selected');
+            $this.addClass('selected');
+
+            // custom callback call
+            this.selectCallback.call(this, $this.data('date'));
+        },
+
         getStartYear: function() {
             return this.startDate.getFullYear();
         },
@@ -105,20 +128,30 @@
         },
 
         scrollLoad: function() {
-            // when the restFrames is not empty, 
-            // trigger scrolling to load
+            // when the restFrames is not empty, trigger scrolling to load
             if (this.restFrames <= 0) return;
 
             var $window = $(window),
                 $document = $(document),
                 startYear = this.tmpYear,
                 startMonth = this.tmpMonth + 1,
-                endYear = this.getEndYear(),
-                endMonth = this.getEndMonth();
+                endYear,
+                endMonth;
 
             if (($document.height() - $window.height() - $window.scrollTop()) < this.loadOffset) {
-                this.restFrames = 0;
-                this.$container.append(UTILS.renderMutiplePicker(startYear, startMonth, endYear, endMonth));
+                if (this.restFrames <= this.loadFrames) {
+                    this.restFrames = 0;
+                    endYear = this.getEndYear();
+                    endMonth = this.getEndMonth();
+
+                    this.$container.append(UTILS.renderMutiplePicker(startYear, startMonth, endYear, endMonth));
+                } else {
+                    this.restFrames -= this.loadFrames;
+                    endYear = this.tmpYear = startYear + ((startMonth + this.loadFrames) > 11 ? 1 : 0);
+                    endMonth = this.tmpMonth = (startMonth + this.loadFrames - 1) % 12;
+                    this.$container.append(UTILS.renderMutiplePicker(startYear, startMonth, endYear, endMonth));
+                }
+                
             }
         }
 
@@ -158,16 +191,18 @@
         },
 
         renderSinglePicker: function(year, month) {
-            var $tpl = $('<div class="datepicker-table">\
-                            <h2 class="datepicker-header">' + year + '年' + (month + 1) + '月' + '</h2>\
-                            <span class="dp-th">日</span>\
-                            <span class="dp-th">一</span>\
-                            <span class="dp-th">二</span>\
-                            <span class="dp-th">三</span>\
-                            <span class="dp-th">四</span>\
-                            <span class="dp-th">五</span>\
-                            <span class="dp-th">六</span>\
-                        </div>'),
+            var self = this,
+                $tpl = $('<div class="datepicker-table">' +
+                            '<h2 class="datepicker-header">' + year + '年' + (month + 1) + '月' + '</h2>' +
+                            (function() {
+                                var th = '';
+                                //i18n
+                                for (var i = 0; i < self.weeks.length; i++) {
+                                    th += '<span class="dp-th">' + self.weeks[i] + '</span>';
+                                }
+                                return th;
+                            })() +
+                        '</div>'),
                 arr = this.fillArr(year, month),
                 currentDate = this.getCurrentDate(),
                 tmp = '';
@@ -180,7 +215,10 @@
                         itemYear = parseInt(itemArr[0]),
                         itemMonth = parseInt(itemArr[1]) - 1,
                         itemDate = parseInt(itemArr[2]),
-                        className = (currentDate.getFullYear() == itemYear && parseInt(currentDate.getMonth()) == itemMonth && parseInt(currentDate.getDate()) == itemDate) ? 'is-today' : '';
+                        className = '';
+
+                    className += new Date(arr[i]) < currentDate ? 'is-outdate ' : '';
+                    className += (currentDate.getFullYear() == itemYear && parseInt(currentDate.getMonth()) == itemMonth && parseInt(currentDate.getDate()) == itemDate) ? 'is-today ' : '';
 
                     if (i % 7 == 0 || i % 7 == 6) {
                         className += ' is-weekend';

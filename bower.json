@@ -1,0 +1,24 @@
+{
+  "name": "fDatepicker.js",
+  "version": "1.0.0",
+  "homepage": "https://github.com/FrendEr/fDatepicker.js",
+  "authors": [
+    "FrendEr <frend.wong@gmail.com>"
+  ],
+  "description": "移动端满屏日历插件，支持单个月份切换和多个月份平铺展示两种方式。使用多月份平铺展示时，支持初始化加载个数、分页加载。",
+  "main": "fDatepicker.js",
+  "keywords": [
+    "datepicker",
+    "calendar",
+    "date",
+    "frend"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

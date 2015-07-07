@@ -4,28 +4,28 @@
 		<meta charset="utf-8">
         <meta name="viewport" content="width=device-width,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
 		<title>fDatepicker example</title>
-		<style type="text/css">
-		* {margin: 0;padding: 0;box-sizing: border-box;}
-		.header {height: 40px;line-height: 40px;text-align: center;background-color: #05b47a;color: #fff;font-family: Verdana;}
-		.datepicker-table {overflow: hidden;text-align: center;font-size: 14px;color: #333;width: 100%;}
-		.datepicker-table span {float: left;height: 24px;line-height: 24px;width: 14.28%;border: 1px solid #ddd;}
-		.datepicker-table .dp-th {font-weight: bold;background-color: #f1f1f1;}
-		</style>
+		<link rel="stylesheet" type="text/css" href="../src/fDatepicker.css">
 	</head>
 	<body>
-		<header class="header">Datepicker</header>
+		<header class="header">
+			<p>fDatepicker.js</p>
+		</header>
 		<div id="container"></div>
-		<script src="./bower_components/jquery/dist/jquery.js"></script>
-		<script src="./bower_components/underscore/underscore-min.js"></script>
-		<script src="./src/fDatepicker.js"></script>
+		<script src="../bower_components/jquery/dist/jquery.js"></script>
+		<script src="../bower_components/underscore/underscore-min.js"></script>
+		<script src="../src/fDatepicker.js"></script>
 		<script type="text/javascript">
 		var datepicker = new Datepicker({
 			container: '#container',
 			startDate: '2015-07-03',
-			endDate: '2015-09-03',
-			initFrame: 3,
-	        preloadFrame: 3,
-	        loadOffset: 100
+			endDate: '2016-07-03',
+			initFrame: 4,
+			loadFrames: 3,
+	        loadOffset: 20,
+	        i18n: true,
+	        selectCallback: function(date) {
+	        	alert(date)
+	        }
 		});
 		</script>
 	</body>
