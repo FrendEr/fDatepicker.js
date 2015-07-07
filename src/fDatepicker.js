@@ -1,10 +1,12 @@
-/* =====================================================
- * @name        datepicker.js
- * @author      Frend
- * @version     1.0.0
- * @dependency  jQuery
- * @github      https://github.com/FrendEr/fDatepicker.js
- * ===================================================== */
+/* =======================================================
+ * 
+ *  @name        datepicker.js
+ *  @author      Frend
+ *  @version     1.0.0
+ *  @dependency  jQuery
+ *  @github      https://github.com/FrendEr/fDatepicker.js
+ *
+ * ======================================================= */
 
 !function(root, factory) {
     if (typeof define == 'function' && define.amd) {
@@ -28,8 +30,9 @@
         endDate       : '',
         singleFrame   : false,
         initFrames    : 3,
-        loadOffset    : 100
-    }
+        loadOffset    : 100,
+        i18n          : false
+    };
 
     function Datepicker(options) {
         var options = $.extend(Datepicker.DEFAULT, options);
@@ -37,9 +40,14 @@
         this.$container   = $(options.container);
         this.startDate    = new Date(options.startDate);
         this.endDate      = new Date(options.endDate);
-        this.initFrame    = options.initFrame;
+        this.initFrames   = options.initFrame;
+        this.restFrames   = 0;
+        this.tmpYear      = 0;
+        this.tmpMonth     = 0;
         this.loadOffset   = options.loadOffset;
         this.singleFrame  = options.singleFrame;
+
+        $(window).on('scroll', $.proxy(this.scrollLoad, this));
 
         // init datepicker
         this.init();
@@ -50,7 +58,8 @@
         constructor: Datepicker,
 
         init: function() {
-            var startYear = this.getStartYear(),
+            var self = this,
+                startYear = this.getStartYear(),
                 startMonth = this.getStartMonth(),
                 endYear = this.getEndYear(),
                 endMonth = this.getEndMonth();
@@ -65,7 +74,18 @@
             }
 
             // render mutiple months
-            this.$container.append(UTILS.renderMutiplePicker(startYear, startMonth, endYear, endMonth));
+            if (!this.singleFrame) {
+                this.restFrames = (endYear - startYear) * 12 + endMonth - startMonth - this.initFrames;
+
+                if (this.restFrames > 0) {
+                    var endY = this.tmpYear = startYear + ((startMonth + this.initFrames) > 11 ? 1 : 0),
+                        endM = this.tmpMonth = (startMonth + this.initFrames - 1) % 12;
+
+                    this.$container.append(UTILS.renderMutiplePicker(startYear, startMonth, endY, endM));
+                } else {
+                    this.$container.append(UTILS.renderMutiplePicker(startYear, startMonth, endYear, endMonth));
+                }
+            }
         },
 
         getStartYear: function() {
@@ -82,6 +102,24 @@
 
         getEndMonth: function() {
             return this.endDate.getMonth();
+        },
+
+        scrollLoad: function() {
+            // when the restFrames is not empty, 
+            // trigger scrolling to load
+            if (this.restFrames <= 0) return;
+
+            var $window = $(window),
+                $document = $(document),
+                startYear = this.tmpYear,
+                startMonth = this.tmpMonth + 1,
+                endYear = this.getEndYear(),
+                endMonth = this.getEndMonth();
+
+            if (($document.height() - $window.height() - $window.scrollTop()) < this.loadOffset) {
+                this.restFrames = 0;
+                this.$container.append(UTILS.renderMutiplePicker(startYear, startMonth, endYear, endMonth));
+            }
         }
 
     }
@@ -95,7 +133,7 @@
         weeksi18n: ['Sun', 'Mon', 'Tues', 'Wed', 'Thur', 'Fri', 'Sat'],
 
         getCurrentDate: function() {
-            return new Date().getDate();
+            return new Date();
         },
 
         getMonthFirstDay: function(year, month) {
@@ -131,23 +169,25 @@
                             <span class="dp-th">六</span>\
                         </div>'),
                 arr = this.fillArr(year, month),
-                date = this.getCurrentDate(),
+                currentDate = this.getCurrentDate(),
                 tmp = '';
 
             for (var i = 0; i < arr.length; i++) {
                 arr[i] == undefined ? 
                 (tmp += '<span></span>') : 
-                (function() {
-                    var itemMonth = parseInt(arr[i].split('-')[2]) - 1,
-                        itemDate = parseInt(arr[i].split('-')[2]),
-                        className = (month == itemMonth && date == itemDate) ? 'is-today' : '';
+                (function(i) {
+                    var itemArr = arr[i].split('-'),
+                        itemYear = parseInt(itemArr[0]),
+                        itemMonth = parseInt(itemArr[1]) - 1,
+                        itemDate = parseInt(itemArr[2]),
+                        className = (currentDate.getFullYear() == itemYear && parseInt(currentDate.getMonth()) == itemMonth && parseInt(currentDate.getDate()) == itemDate) ? 'is-today' : '';
 
                     if (i % 7 == 0 || i % 7 == 6) {
                         className += ' is-weekend';
                     }
 
                     tmp += '<span class="' + className + '" data-date="' + arr[i] + '"><i>' + itemDate + '</i></span>';
-                })();
+                })(i);
             }
 
             return $tpl.append(tmp);
@@ -159,8 +199,10 @@
                 $tpl = $('<div/>');
 
             for (var i = 0; i <= monthDist; i++) {
-                var month = 
-                $tpl.append(this.renderSinglePicker(startYear, startMonth + i));
+                var month = (startMonth + i) % 12,
+                    year = (startMonth + i) >= 12 ? startYear + 1 : startYear;
+
+                $tpl.append(this.renderSinglePicker(year, month));
             }
 
             return $tpl;
