@@ -1,0 +1,52 @@
+{
+	"list": [
+		{
+			"date": "2015-07-09",
+			"currency": "$",
+			"price": "1923",
+			"quota": 0
+		},
+		{
+			"date": "2015-07-12",
+			"currency": "$",
+			"price": "1923",
+			"quota": 10
+		},
+		{
+			"date": "2015-07-16",
+			"currency": "$",
+			"price": "1923",
+			"quota": 2
+		},
+		{
+			"date": "2015-07-23",
+			"currency": "$",
+			"price": "1923",
+			"quota": 0
+		},
+		{
+			"date": "2015-07-26",
+			"currency": "$",
+			"price": "1923",
+			"quota": 0
+		},
+		{
+			"date": "2015-07-30",
+			"currency": "$",
+			"price": "1923",
+			"quota": 0
+		},
+		{
+			"date": "2015-08-20",
+			"currency": "$",
+			"price": "1923",
+			"quota": 0
+		},
+		{
+			"date": "2015-09-03",
+			"currency": "$",
+			"price": "1923",
+			"quota": 0
+		}
+	]
+}
