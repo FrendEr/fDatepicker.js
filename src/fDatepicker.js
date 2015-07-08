@@ -56,7 +56,7 @@
         $(window).on('scroll', $.proxy(this.scrollLoad, this));
 
         // init select event
-        $(document.body).on('click', 'span[data-date]', $.proxy(this.initEvents, this));
+        this.$container.on('click', 'span[data-date]', $.proxy(this.initEvents, this));
 
         // init datepicker
         this.init();
@@ -184,7 +184,7 @@
                 arr = (firstDay + lastDay > 36) ? new Array(42) : (firstDay + lastDay > 28) ? new Array(35) : new Array(28);
 
             for (var j = firstDay, i = 0; i < totleDays; i++, j++) {
-                arr[j] = year + '-' + (month + 1) + '-' + (i + 1);
+                arr[j] = year + '/' + (month + 1) + '/' + (i + 1);
             }
 
             return arr;
@@ -211,7 +211,7 @@
                 arr[i] == undefined ? 
                 (tmp += '<span></span>') : 
                 (function(i) {
-                    var itemArr = arr[i].split('-'),
+                    var itemArr = arr[i].split('/'),
                         itemYear = parseInt(itemArr[0]),
                         itemMonth = parseInt(itemArr[1]) - 1,
                         itemDate = parseInt(itemArr[2]),
