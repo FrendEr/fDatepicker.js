@@ -1,5 +1,5 @@
 /* =======================================================
- * 
+ *
  *  @name        datepicker.js
  *  @author      Frend
  *  @version     1.0.0
@@ -40,8 +40,8 @@
         var options = $.extend(Datepicker.DEFAULT, options);
 
         this.$container     = $(options.container);
-        this.startDate      = new Date(options.startDate);
-        this.endDate        = new Date(options.endDate);
+        this.startDate      = typeof options.startDate == 'string' ? new Date(options.startDate) : options.startDate;
+        this.endDate        = typeof options.endDate == 'string' ? new Date(options.endDate) : options.endDate;
         this.initFrames     = options.initFrame;
         this.restFrames     = 0;
         this.loadFrames     = options.loadFrames;
@@ -56,14 +56,14 @@
         $(window).on('scroll', $.proxy(this.scrollLoad, this));
 
         // init select event
-        $(document.body).on('click', 'span[data-date]', $.proxy(this.initEvents, this));
+        this.$container.on('click', 'span[data-date]', $.proxy(this.initEvents, this));
 
         // init datepicker
         this.init();
     }
 
     Datepicker.prototype = {
-        
+
         constructor: Datepicker,
 
         init: function() {
@@ -151,7 +151,7 @@
                     endMonth = this.tmpMonth = (startMonth + this.loadFrames - 1) % 12;
                     this.$container.append(UTILS.renderMutiplePicker(startYear, startMonth, endYear, endMonth));
                 }
-                
+
             }
         }
 
@@ -184,7 +184,7 @@
                 arr = (firstDay + lastDay > 36) ? new Array(42) : (firstDay + lastDay > 28) ? new Array(35) : new Array(28);
 
             for (var j = firstDay, i = 0; i < totleDays; i++, j++) {
-                arr[j] = year + '-' + (month + 1) + '-' + (i + 1);
+                arr[j] = year + '/' + (month + 1) + '/' + (i + 1);
             }
 
             return arr;
@@ -208,10 +208,10 @@
                 tmp = '';
 
             for (var i = 0; i < arr.length; i++) {
-                arr[i] == undefined ? 
-                (tmp += '<span></span>') : 
+                arr[i] == undefined ?
+                (tmp += '<span></span>') :
                 (function(i) {
-                    var itemArr = arr[i].split('-'),
+                    var itemArr = arr[i].split('/'),
                         itemYear = parseInt(itemArr[0]),
                         itemMonth = parseInt(itemArr[1]) - 1,
                         itemDate = parseInt(itemArr[2]),
