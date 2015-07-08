@@ -28,8 +28,8 @@ demo：[http://frender.github.io/fDatepicker.js](http://frender.github.io/fDatep
 ## Options
 
 - **container** : 需要制定的展示日历的根元素 `@String`
-- **startDate** : 日历的开始日期 `@String`
-- **endDate** : 日历的结束日期 `@String`
+- **startDate** : 日历的开始日期 `@String or @Date`
+- **endDate** : 日历的结束日期 `@String or @Date`
 - **singleFrame** : 使用单个月份模式，支持月份切换  `@Boolean`
 - **initFrames** : 【多月份模式】初始化的个数  `@Number`
 - **loadFrames** : 【多月份模式】分页加载每页的个数  `@Number`
@@ -55,5 +55,3 @@ npm install fdatepicker.js [--save[-dev]]
 ## Version
 
 - **1.0.0**
-
-
