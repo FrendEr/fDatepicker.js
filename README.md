@@ -24,7 +24,7 @@ var datepicker = new Datepicker({
 
 ## Example
 
-demo：[http://frender.github.io/fDatepicker.js](http://frender.github.io/fDatepicker.js)
+link：[http://frender.github.io/fDatepicker.js](http://frender.github.io/fDatepicker.js)
 
 ## Options
 
