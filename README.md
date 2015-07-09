@@ -32,7 +32,7 @@ demo：[http://frender.github.io/fDatepicker.js](http://frender.github.io/fDatep
 > 需要制定的展示日历的根元素
 
 - **initDate** `@String or @Date`
-> 初始化的选中日期，如果使用`@String`类型，请遵循标准的YYYYMMDD模式，否则实现标准Date.parse的浏览器会报invalid date错误。下同。
+> 初始化的选中日期。如果使用`@String`类型，请遵循标准的YYYYMMDD模式，否则实现标准Date.parse的浏览器会报invalid date错误。下同。
 
 - **startDate** `@String or @Date`
 > 日历的开始日期
