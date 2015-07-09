@@ -8,14 +8,15 @@
 
 var datepicker = new Datepicker({
     container: '#container',
-    startDate: '2015-07-03',
-    endDate: '2016-07-03',
+    initDate: new Date('2015/7/21'),
+    startDate: new Date('2015/7/3'),
+    endDate: new Date('2016/7/3'),
     initFrame: 4,
     loadFrames: 3,
-    loadOffset: 20,
-    i18n: true,
+    loadOffset: 60,
+    i18n: false,
     selectCallback: function(date) {
-        alert(date)
+        $('#dateTips').html(date);
     }
 });
 
@@ -28,6 +29,7 @@ demo：[http://frender.github.io/fDatepicker.js](http://frender.github.io/fDatep
 ## Options
 
 - **container** : 需要制定的展示日历的根元素 `@String`
+- **initDate** : 初始化的日期 `@String or @Date`
 - **startDate** : 日历的开始日期 `@String or @Date`
 - **endDate** : 日历的结束日期 `@String or @Date`
 - **singleFrame** : 使用单个月份模式，支持月份切换  `@Boolean`
