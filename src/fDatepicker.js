@@ -1,5 +1,5 @@
 /* =======================================================
- * 
+ *
  *  @name        datepicker.js
  *  @author      Frend
  *  @version     1.0.0
@@ -26,6 +26,7 @@
 
     Datepicker.DEFAULT = {
         container      : '',
+        initDate       : '',
         startDate      : '',
         endDate        : '',
         singleFrame    : false,
@@ -40,8 +41,9 @@
         var options = $.extend(Datepicker.DEFAULT, options);
 
         this.$container     = $(options.container);
-        this.startDate      = new Date(options.startDate);
-        this.endDate        = new Date(options.endDate);
+        this.initDate       = typeof options.initDate == 'string' ? new Date(options.initDate) : options.initDate;
+        this.startDate      = typeof options.startDate == 'string' ? new Date(options.startDate) : options.startDate;
+        this.endDate        = typeof options.endDate == 'string' ? new Date(options.endDate) : options.endDate;
         this.initFrames     = options.initFrame;
         this.restFrames     = 0;
         this.loadFrames     = options.loadFrames;
@@ -56,14 +58,14 @@
         $(window).on('scroll', $.proxy(this.scrollLoad, this));
 
         // init select event
-        $(document.body).on('click', 'span[data-date]', $.proxy(this.initEvents, this));
+        this.$container.on('click', 'span[data-date]', $.proxy(this.initEvents, this));
 
         // init datepicker
         this.init();
     }
 
     Datepicker.prototype = {
-        
+
         constructor: Datepicker,
 
         init: function() {
@@ -78,7 +80,7 @@
 
             // render single month
             if (this.singleFrame || (startYear == endYear && startMonth == endMonth)) {
-                this.$container.append(UTILS.renderSinglePicker(startYear, startMonth));
+                this.$container.append(UTILS.renderSinglePicker(startYear, startMonth, self));
                 return;
             }
 
@@ -90,9 +92,9 @@
                     var endY = this.tmpYear = startYear + ((startMonth + this.initFrames) > 11 ? 1 : 0),
                         endM = this.tmpMonth = (startMonth + this.initFrames - 1) % 12;
 
-                    this.$container.append(UTILS.renderMutiplePicker(startYear, startMonth, endY, endM));
+                    this.$container.append(UTILS.renderMutiplePicker(startYear, startMonth, endY, endM, self));
                 } else {
-                    this.$container.append(UTILS.renderMutiplePicker(startYear, startMonth, endYear, endMonth));
+                    this.$container.append(UTILS.renderMutiplePicker(startYear, startMonth, endYear, endMonth, self));
                 }
             }
         },
@@ -106,6 +108,9 @@
 
             this.$container.find('.selected').removeClass('selected');
             $this.addClass('selected');
+
+            // reset initDate
+            this.initDate = new Date($this.data('date'));
 
             // custom callback call
             this.selectCallback.call(this, $this.data('date'));
@@ -131,7 +136,8 @@
             // when the restFrames is not empty, trigger scrolling to load
             if (this.restFrames <= 0) return;
 
-            var $window = $(window),
+            var self = this,
+                $window = $(window),
                 $document = $(document),
                 startYear = this.tmpYear,
                 startMonth = this.tmpMonth + 1,
@@ -144,14 +150,14 @@
                     endYear = this.getEndYear();
                     endMonth = this.getEndMonth();
 
-                    this.$container.append(UTILS.renderMutiplePicker(startYear, startMonth, endYear, endMonth));
+                    this.$container.append(UTILS.renderMutiplePicker(startYear, startMonth, endYear, endMonth, self));
                 } else {
                     this.restFrames -= this.loadFrames;
                     endYear = this.tmpYear = startYear + ((startMonth + this.loadFrames) > 11 ? 1 : 0);
                     endMonth = this.tmpMonth = (startMonth + this.loadFrames - 1) % 12;
-                    this.$container.append(UTILS.renderMutiplePicker(startYear, startMonth, endYear, endMonth));
+                    this.$container.append(UTILS.renderMutiplePicker(startYear, startMonth, endYear, endMonth, self));
                 }
-                
+
             }
         }
 
@@ -161,9 +167,10 @@
     // ==========================
     var UTILS = {
 
-        weeks: ['日', '一', '二', '三', '四', '五', '六'],
-
-        weeksi18n: ['Sun', 'Mon', 'Tues', 'Wed', 'Thur', 'Fri', 'Sat'],
+        weeks      : ['日', '一', '二', '三', '四', '五', '六'],
+        weeksi18n  : ['Sun', 'Mon', 'Tues', 'Wed', 'Thur', 'Fri', 'Sat'],
+        months     : ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+        monthsi18n : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
 
         getCurrentDate: function() {
             return new Date();
@@ -184,41 +191,47 @@
                 arr = (firstDay + lastDay > 36) ? new Array(42) : (firstDay + lastDay > 28) ? new Array(35) : new Array(28);
 
             for (var j = firstDay, i = 0; i < totleDays; i++, j++) {
-                arr[j] = year + '-' + (month + 1) + '-' + (i + 1);
+                arr[j] = year + '/' + (month + 1) + '/' + (i + 1);
             }
 
             return arr;
         },
 
-        renderSinglePicker: function(year, month) {
-            var self = this,
+        renderSinglePicker: function(year, month, datepickerObj) {
+            var weeksMap = datepickerObj.i18n ? this.weeksi18n : this.weeks,
+                ym = datepickerObj.i18n ? (this.monthsi18n[month] + ' ' + year) : (year + '年 ' + this.months[month]),
                 $tpl = $('<div class="datepicker-table">' +
-                            '<h2 class="datepicker-header">' + year + '年' + (month + 1) + '月' + '</h2>' +
+                            '<h2 class="datepicker-header">' + ym + '</h2>' +
                             (function() {
                                 var th = '';
-                                //i18n
-                                for (var i = 0; i < self.weeks.length; i++) {
-                                    th += '<span class="dp-th">' + self.weeks[i] + '</span>';
+
+                                for (var i = 0; i < weeksMap.length; i++) {
+                                    th += '<span class="dp-th">' + weeksMap[i] + '</span>';
                                 }
                                 return th;
                             })() +
                         '</div>'),
                 arr = this.fillArr(year, month),
                 currentDate = this.getCurrentDate(),
+                initDate = datepickerObj.initDate.getTime(),
                 tmp = '';
 
             for (var i = 0; i < arr.length; i++) {
-                arr[i] == undefined ? 
-                (tmp += '<span></span>') : 
+                arr[i] == undefined ?
+                (tmp += '<span></span>') :
                 (function(i) {
-                    var itemArr = arr[i].split('-'),
+                    var itemArr = arr[i].split('/'),
                         itemYear = parseInt(itemArr[0]),
                         itemMonth = parseInt(itemArr[1]) - 1,
                         itemDate = parseInt(itemArr[2]),
                         className = '';
 
+                    // is out of date
                     className += new Date(arr[i]) < currentDate ? 'is-outdate ' : '';
+                    // is today
                     className += (currentDate.getFullYear() == itemYear && parseInt(currentDate.getMonth()) == itemMonth && parseInt(currentDate.getDate()) == itemDate) ? 'is-today ' : '';
+                    // is init selected
+                    className += (className.indexOf('is-outdate') != -1) ? '' : (className.indexOf('is-today') != -1) ? '' : (new Date(arr[i]).getTime() == initDate) ? 'selected' : '';
 
                     if (i % 7 == 0 || i % 7 == 6) {
                         className += ' is-weekend';
@@ -231,7 +244,7 @@
             return $tpl.append(tmp);
         },
 
-        renderMutiplePicker: function(startYear, startMonth, endYear, endMonth) {
+        renderMutiplePicker: function(startYear, startMonth, endYear, endMonth, datepickerObj) {
             var yearDist = endYear - startYear,
                 monthDist = yearDist * 12 + endMonth - startMonth,
                 $tpl = $('<div/>');
@@ -240,7 +253,7 @@
                 var month = (startMonth + i) % 12,
                     year = (startMonth + i) >= 12 ? startYear + 1 : startYear;
 
-                $tpl.append(this.renderSinglePicker(year, month));
+                $tpl.append(this.renderSinglePicker(year, month, datepickerObj));
             }
 
             return $tpl;

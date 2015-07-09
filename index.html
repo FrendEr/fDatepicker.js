@@ -4,27 +4,45 @@
 		<meta charset="utf-8">
         <meta name="viewport" content="width=device-width,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
 		<title>fDatepicker example</title>
-		<link rel="stylesheet" type="text/css" href="./src/fDatepicker.css">
+		<link rel="stylesheet" type="text/css" href="../src/fDatepicker.css">
+		<style media="screen">
+			#dateTips {
+				position: fixed;
+				bottom: 20px;
+				right: 20px;
+				border-radius: 5px;
+				padding: 0 10px;
+				height: 40px;
+				line-height: 40px;
+				text-align: center;
+				color: #fff;
+				font-size: 14px;
+				background-color: rgba(0, 0, 0, .8);
+				font-family: sans-serif;
+			}
+		</style>
 	</head>
 	<body>
 		<header class="header">
 			<p>fDatepicker.js</p>
 		</header>
 		<div id="container"></div>
-		<script src="./bower_components/jquery/dist/jquery.js"></script>
-		<script src="./bower_components/underscore/underscore-min.js"></script>
-		<script src="./src/fDatepicker.js"></script>
+		<span id="dateTips">2015/7/21</span>
+		<script src="../bower_components/jquery/dist/jquery.js"></script>
+		<script src="../bower_components/underscore/underscore-min.js"></script>
+		<script src="../src/fDatepicker.js"></script>
 		<script type="text/javascript">
 		var datepicker = new Datepicker({
 			container: '#container',
-			startDate: '2015-07-03',
-			endDate: '2016-07-03',
+			initDate: new Date('2015/7/21'),
+			startDate: new Date('2015/7/3'),
+			endDate: new Date('2016/7/3'),
 			initFrame: 4,
 			loadFrames: 3,
-	        loadOffset: 20,
-	        i18n: true,
+	        loadOffset: 60,
+	        i18n: false,
 	        selectCallback: function(date) {
-	        	alert(date)
+		        $('#dateTips').html(date);
 	        }
 		});
 		</script>
