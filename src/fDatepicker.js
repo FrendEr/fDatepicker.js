@@ -63,11 +63,19 @@
         this.i18n           = options.i18n;
         this.selectCallback = options.selectCallback;
 
+        // cache after props set
+        var self = this;
+
         // init scroll event
         $(window).on('scroll', $.proxy(this.scrollLoad, this));
 
         // init select event
         this.$container.on('click', 'span[data-date]', $.proxy(this.initEvents, this));
+
+        // init month exchange event
+        this.$container.on('click', '#prevBtn, #nextBtn', function(event) {
+            UTILS.monthExchange(event.target, self.tmpYear || self.getInitYear() || self.getStartYear(), (self.tmpYear != 0 && self.tmpMonth >= 0) ? self.tmpMonth : (self.getInitMonth() || self.getStartMonth()), self);
+        });
 
         // init datepicker
         this.init();
@@ -79,8 +87,8 @@
 
         init: function() {
             var self = this,
-                startYear = this.getStartYear(),
-                startMonth = this.getStartMonth(),
+                startYear = this.singleFrame ? (this.getInitYear() ? this.getInitYear() : this.getStartYear()) : this.getStartYear(),
+                startMonth = this.singleFrame ?(this.getInitMonth() ? this.getInitMonth() : this.getStartMonth()) : this.getStartMonth(),
                 endYear = this.getEndYear(),
                 endMonth = this.getEndMonth();
 
@@ -125,6 +133,14 @@
             this.selectCallback.call(this, $this.data('date'));
         },
 
+        getInitYear: function() {
+            return this.initDate.getFullYear();
+        },
+
+        getInitMonth: function() {
+            return this.initDate.getMonth();
+        },
+
         getStartYear: function() {
             return this.startDate.getFullYear();
         },
@@ -139,6 +155,10 @@
 
         getEndMonth: function() {
             return this.endDate.getMonth();
+        },
+
+        getEndDate: function() {
+            return this.endDate;
         },
 
         scrollLoad: function() {
@@ -206,24 +226,70 @@
             return arr;
         },
 
+        monthExchange: function(target, year, month, datepickerObj) {
+            var $this = $(target),
+                // year = year,
+                // month = month,
+                className = $this[0].className;
+
+            if (className.indexOf('disable-btn') != -1) return;
+            // prev month
+            if (className.indexOf('prev-btn') != -1) {
+                (month - 1 >= 0) ? (function() {
+                    datepickerObj.tmpYear = year;
+                    datepickerObj.tmpMonth = month - 1;
+                })() : (function() {
+                    datepickerObj.tmpYear = year - 1;
+                    datepickerObj.tmpMonth = 11;
+                })();
+                datepickerObj.$container.empty().append(this.renderSinglePicker(datepickerObj.tmpYear, datepickerObj.tmpMonth, datepickerObj));
+            }
+            // next month
+            if (className.indexOf('next-btn') != -1) {
+                (month + 1 <= 11) ? (function() {
+                    datepickerObj.tmpYear = year;
+                    datepickerObj.tmpMonth = month + 1;
+                })() : (function() {
+                    datepickerObj.tmpYear = year + 1;
+                    datepickerObj.tmpMonth = 0;
+                })();
+                datepickerObj.$container.empty().append(this.renderSinglePicker(datepickerObj.tmpYear, datepickerObj.tmpMonth, datepickerObj));
+            }
+        },
+
         renderSinglePicker: function(year, month, datepickerObj) {
+            var arr = this.fillArr(year, month),
+                currentDate = this.getCurrentDate(),
+                endDate = datepickerObj.getEndDate(),
+                initDate = datepickerObj.initDate.getTime(),
+                $tpl = this.renderPickerHead(year, month, datepickerObj);
+
+            return $tpl.append(this.renderPickerBody(arr, currentDate, endDate, initDate));
+        },
+
+        renderPickerHead: function(year, month, datepickerObj) {
             var weeksMap = datepickerObj.i18n ? this.weeksi18n : this.weeks,
                 ym = datepickerObj.i18n ? (this.monthsi18n[month] + ' ' + year) : (year + '年 ' + this.months[month]),
+                prev = datepickerObj.singleFrame ? '<i id="prevBtn" class="prev-btn ' + (year == datepickerObj.getStartYear() && (month == datepickerObj.getStartMonth()) ? 'disable-btn' : '') + '">&lt;</i>' : '',
+                next = datepickerObj.singleFrame ? '<i id="nextBtn" class="next-btn ' + (year == datepickerObj.getEndYear() && (month == datepickerObj.getEndMonth()) ? 'disable-btn' : '') + '">&gt;</i>' : '',
+                hd =  prev + ym + next,
                 $tpl = $('<div class="datepicker-table">' +
-                            '<h2 class="datepicker-header">' + ym + '</h2>' +
-                            (function() {
-                                var th = '';
+                    '<h2 id="dpHeader" class="datepicker-header">' + hd + '</h2>' +
+                    (function() {
+                        var th = '';
 
-                                for (var i = 0; i < weeksMap.length; i++) {
-                                    th += '<span class="dp-th">' + weeksMap[i] + '</span>';
-                                }
-                                return th;
-                            })() +
-                        '</div>'),
-                arr = this.fillArr(year, month),
-                currentDate = this.getCurrentDate(),
-                initDate = datepickerObj.initDate.getTime(),
-                tmp = '';
+                        for (var i = 0; i < weeksMap.length; i++) {
+                            th += '<span class="dp-th">' + weeksMap[i] + '</span>';
+                        }
+                        return th;
+                    })() +
+                '</div>');
+
+            return $tpl;
+        },
+
+        renderPickerBody: function(arr, currentDate, endDate, initDate) {
+            var tmp = '';
 
             for (var i = 0; i < arr.length; i++) {
                 arr[i] == undefined ?
@@ -236,7 +302,7 @@
                         className = '';
 
                     // is out of date
-                    className += new Date(arr[i]) < currentDate ? 'is-outdate ' : '';
+                    className += (new Date(arr[i]) < currentDate || new Date(arr[i]) > endDate ) ? 'is-outdate ' : '';
                     // is today
                     className += (currentDate.getFullYear() == itemYear && parseInt(currentDate.getMonth()) == itemMonth && parseInt(currentDate.getDate()) == itemDate) ? 'is-today ' : '';
                     // is init selected
@@ -250,7 +316,7 @@
                 })(i);
             }
 
-            return $tpl.append(tmp);
+            return tmp;
         },
 
         renderMutiplePicker: function(startYear, startMonth, endYear, endMonth, datepickerObj) {
