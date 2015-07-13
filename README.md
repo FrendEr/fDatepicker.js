@@ -5,6 +5,7 @@
 ## Initialize
 
 ```javascript
+
 // single frame
 var datepicker = new Datepicker({
     container: '#container',
@@ -17,6 +18,8 @@ var datepicker = new Datepicker({
         $('#dateTips').html(date);
     }
 });
+
+
 // multiple frames
 var datepicker = new Datepicker({
     container: '#container',
@@ -89,7 +92,7 @@ npm install fdatepicker.js [--save[-dev]]
 
 - **1.0.1**
 
-> + 增加但月份切换支持
+> + 增加单月份切换支持
 > + bug 修复
 
 
