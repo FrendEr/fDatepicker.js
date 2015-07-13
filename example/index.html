@@ -6,6 +6,22 @@
 		<title>fDatepicker example</title>
 		<link rel="stylesheet" type="text/css" href="../src/fDatepicker.css">
 		<style media="screen">
+			.header {
+				height: 60px;
+				line-height: 60px;
+				text-align: center;
+				color: #fff;
+				font-family: verdana;
+			}
+			.header p {
+				position: fixed;
+				top: 0;
+				left: 0;
+				width: 100%;
+				background-color: #05b47a;
+				font-size: 20px;
+				z-index: 100;
+			}
 			#dateTips {
 				position: fixed;
 				bottom: 20px;
@@ -27,14 +43,14 @@
 			<p>fDatepicker.js</p>
 		</header>
 		<div id="container"></div>
-		<span id="dateTips">2015/7/21</span>
+		<span id="dateTips"></span>
 		<script src="../bower_components/jquery/dist/jquery.js"></script>
 		<script src="../bower_components/underscore/underscore-min.js"></script>
 		<script src="../src/fDatepicker.js"></script>
 		<script type="text/javascript">
 		var datepicker = new Datepicker({
 			container: '#container',
-			initDate: new Date('2015/7/21'),
+			initDate: new Date('2015/7/20'),
 			startDate: new Date('2015/7/3'),
 			endDate: new Date('2016/7/3'),
 			singleFrame: true,
@@ -46,6 +62,9 @@
 		        $('#dateTips').html(date);
 	        }
 		});
+
+		var init = new Date(datepicker.initDate);
+		$('#dateTips').html(init.getFullYear() + '/' + (init.getMonth() + 1) + '/' + init.getDate());
 		</script>
 	</body>
 </html>
