@@ -5,7 +5,19 @@
 ## Initialize
 
 ```javascript
-
+// single frame
+var datepicker = new Datepicker({
+    container: '#container',
+    initDate: new Date('2015/7/20'),
+    startDate: new Date('2015/7/3'),
+    endDate: new Date('2016/7/3'),
+    singleFrame: true,
+    i18n: false,
+    selectCallback: function(date) {
+        $('#dateTips').html(date);
+    }
+});
+// multiple frames
 var datepicker = new Datepicker({
     container: '#container',
     initDate: new Date('2015/7/21'),
@@ -14,7 +26,7 @@ var datepicker = new Datepicker({
     initFrame: 4,
     loadFrames: 3,
     loadOffset: 60,
-    i18n: false,
+    i18n: true,
     selectCallback: function(date) {
         $('#dateTips').html(date);
     }
@@ -22,7 +34,7 @@ var datepicker = new Datepicker({
 
 ```
 
-## Example
+## Demo
 
 link：[http://frender.github.io/fDatepicker.js](http://frender.github.io/fDatepicker.js)
 
@@ -74,5 +86,11 @@ npm install fdatepicker.js [--save[-dev]]
 ```
 
 ## Version
+
+- **1.0.1**
+
+> + 增加但月份切换支持
+> + bug 修复
+
 
 - **1.0.0**
