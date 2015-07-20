@@ -84,13 +84,13 @@ or
 
 ```javascript
 
-npm install fdatepicker.js [--save[-dev]]
+npm install fdatepicker.js@1.0.4 [--save[-dev]]
 
 ```
 
 ## Version
 
-- **1.0.1**
+- **1.0.4**
 
 > + 增加单月份切换支持
 > + bug 修复
