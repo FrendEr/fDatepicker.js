@@ -73,9 +73,11 @@
         this.$container.on('click', 'span[data-date]', $.proxy(this.initEvents, this));
 
         // init month exchange event
-        this.$container.on('click', '#prevBtn, #nextBtn', function(event) {
-            UTILS.monthExchange(event.target, self.tmpYear || self.getInitYear() || self.getStartYear(), (self.tmpYear != 0 && self.tmpMonth >= 0) ? self.tmpMonth : (self.getInitMonth() || self.getStartMonth()), self);
-        });
+        if (this.singleFrame) {
+            this.$container.on('click', '#prevBtn, #nextBtn', function(event) {
+                UTILS.monthExchange(event.target, self.tmpYear || self.getInitYear() || self.getStartYear(), (self.tmpYear != 0 && self.tmpMonth >= 0) ? self.tmpMonth : (self.getInitMonth() || self.getStartMonth()), self);
+            });
+        }
 
         // init datepicker
         this.init();
