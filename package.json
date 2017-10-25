@@ -1,8 +1,8 @@
 {
   "name": "fdatepicker.js",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "移动端满屏日历插件，支持单个月份切换和多个月份平铺展示两种方式。使用多月份平铺展示时，支持初始化加载个数、分页加载。",
-  "main": "fDatepicker.js",
+  "main": "dist/fDatepicker.js",
   "directories": {
     "example": "example"
   },
